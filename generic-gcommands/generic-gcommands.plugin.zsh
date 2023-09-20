@@ -30,6 +30,11 @@ getdate() {
   esac
 }
 
+gimage() {
+  IMAGE_FAMILY="${1:-ubuntu-2204-lts}"
+  gcloud compute images list --filter="family='$IMAGE_FAMILY'" --sort-by="~creationTimestamp" --limit=1 --format="json(name)" | jq -r '.[].name'
+}
+
 gcreate() {
   genv
   local usage='Usage: gcreate [-d duration|never] <IMAGE> <INSTANCE_NAMES>'
@@ -83,9 +88,9 @@ gcreate() {
     --service-account="${default_service_account}" \
     --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append \
     --image="${image_name}" --image-project="${image_project}" \
-    --boot-disk-size=200GB --boot-disk-type=pd-ssd \
-    --create-disk size=100GB,type=pd-ssd,auto-delete=yes \
+    --boot-disk-size=30GB --boot-disk-type=pd-ssd \
     --no-shielded-secure-boot --shielded-vtpm --shielded-integrity-monitoring --reservation-affinity=any)
+    # --create-disk size=50GB,type=pd-ssd,auto-delete=yes \
 }
 
 gstart() {
@@ -111,8 +116,8 @@ gdelete() {
   if [ -n "${GPREFIX}" ]; then
     instance_name_prefix="${GPREFIX}-${instance_name_prefix}"
   fi
-  if ! gcloud compute instances list --filter="labels.owner:${GUSER}" | awk '{if(NR>1)print}' | grep RUNNING | grep -q "^${instance_name_prefix}" ; then echo "no instances match \"labels.owner:${GUSER}\""; echo "${usage}"; return 1; fi
-  gcloud compute instances delete --delete-disks=all $(gcloud compute instances list --filter="labels.owner:${GUSER}" | awk '{if(NR>1)print}' | grep RUNNING | grep "^${instance_name_prefix}" | awk '{print $1}' | xargs echo)
+  if ! gcloud compute instances list --filter="labels.owner:${GUSER}" | awk '{if(NR>1)print}' | grep -q "^${instance_name_prefix}" ; then echo "no instances match \"labels.owner:${GUSER}\""; echo "${usage}"; return 1; fi
+  gcloud compute instances delete --delete-disks=all $(gcloud compute instances list --filter="labels.owner:${GUSER}" | awk '{if(NR>1)print}' | grep "^${instance_name_prefix}" | awk '{print $1}' | xargs echo)
 }
 
 gonline() {
