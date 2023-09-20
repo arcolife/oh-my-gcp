@@ -3,7 +3,7 @@
 # GPREFIX=
 
 if (( ! ${+commands[gcloud]} ));then
-  >&2 echo "gcloud not installed, not loading replicated-gcommands plugin"
+  >&2 echo "gcloud not installed, not loading generic-gcommands plugin"
   return 1
 fi
 
@@ -75,7 +75,7 @@ gcreate() {
     instance_names=($(echo ${instance_names} | sed "s/[^ ]* */${GPREFIX}-&/g"))
   fi
   (set -x; gcloud compute instances create ${instance_names[@]} \
-    --labels owner="${GUSER}",email="${GUSER}__64__replicated__46__com",expires-on="${expires}" \
+    --labels owner="${GUSER}",email="${GUSER}__64__projectsiege__46__org",expires-on="${expires}" \
     --machine-type="${machine_type}" \
     --enable-nested-virtualization \
     $min_cpu_platform \
