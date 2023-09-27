@@ -156,7 +156,14 @@ gssh-forward() {
   local natip=$(gcloud compute instances describe "${instance_name}" --format="value(networkInterfaces[0].accessConfigs[0].natIP)")
   local ip=$(gcloud compute instances describe "${instance_name}" --format="value(networkInterfaces[0].networkIP)")
   # gcloud compute ssh --tunnel-through-iap "${instance_name}" -- -L 8800:$address:8800 -L 8888:$address:8888
-  ssh -L 8800:$ip:8800 -L 8888:$ip:8888 $natip
+  gcloud compute ssh --tunnel-through-iap "${instance_name}" -- -L 8800:0.0.0.0:8800 -L 8888:0.0.0.0:8888
+
+  # instance_name="${GPREFIX}-kots-dev"
+
+  # instance_name="${GPREFIX}-kots-new"
+  # ip=$(gcloud compute instances describe "${instance_name}" --format="value(networkInterfaces[0].networkIP)")
+  # natip=$(gcloud compute instances describe "${instance_name}" --format="value(networkInterfaces[0].accessConfigs[0].natIP)")
+  # ssh -i ~/.ssh/google_compute_engine -L 8800:$ip:8800 -L 8888:$ip:8888 arcolife@$natip
 }
 
 gssh() {
